@@ -1,20 +1,20 @@
 import maya.cmds as mc
 import os
 
-selection = mc.ls(selection = True)
+features_selected = cmds.ls(sl=True)
+feature = cmds.listRelatives(features_selected, allDescendents=True, type = 'mesh')
 
-def switcher_daynight (selection):
+def switcher_daynight (feature):
     
-    for element in selection:
+    for element in feature:
         name = element[0:-5]
 
         # This verify if the object name contains the "_elements" sufix.
-        if name.endswith('_elements') == True:
-            print('no se ha cambiado')
-            continue
-        if name.endswith('_glass') == True:
-            print('no se ha cambiado')
-            continue
+        if name.endswith('_elements') == True: continue
+        elif name.endswith('_elements_big') == True: continue
+        elif name.endswith('_elements_medium') == True: continue
+        elif name.endswith('_elements_small') == True: continue
+        elif name.endswith('_glass') == True: continue
         else:
             pass
 
@@ -49,4 +49,4 @@ def switcher_daynight (selection):
         
     return switcher_daynight
 
-switcher_daynight(selection)
+switcher_daynight(feature)
