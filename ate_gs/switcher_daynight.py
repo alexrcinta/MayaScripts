@@ -1,13 +1,13 @@
 import maya.cmds as mc
 import os
 
-features_selected = cmds.ls(sl=True)
-feature = cmds.listRelatives(features_selected, allDescendents=True, type = 'mesh')
+features_selected = cmds.ls(selection = True)
+feature = cmds.listRelatives(features_selected, allDescendents = True, type = 'mesh')
 
 def switcher_daynight (feature):
     
     for element in feature:
-        name = element[0:-5]
+        name = element[0:-10]
 
         # This verify if the object name contains the "_elements" sufix.
         if name.endswith('_elements') == True: continue
