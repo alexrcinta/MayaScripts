@@ -31,6 +31,8 @@ class Lamp_Posts_Window(BaseWindow):
     TEX = TexInfo()
     TEX_RES = TEX.resolution()
 
+    LIGHT_PATH = 'D:/Scripts/DB/DB_DATA/LIGHTS/'
+
     def prev_img (self, index):
         if self.INDEX == 0:
             self.INDEX = len(self.LAMP_POST_LIST) - 1
@@ -137,16 +139,16 @@ class Lamp_Posts_Window(BaseWindow):
                                     defaultNamespace = False,
                                     type = 'OBJ')
 
-        if self.option_group == True:
+        if self.option_group_YES == True:
             self.createGroup(self.LAMP_POST_LIST[self.INDEX])
 
         selection = mc.ls('Mesh')
-        mc.parent(selection,self.group)
+        mc.parent(selection, self.group)
         mc.rename(selection, self.LAMP_POST_LIST[self.INDEX])
 
         self.applyMaterial((self.LAMP_POST_LIST[self.INDEX]))
 
-        mc.checkBox(self.option_group, edit = True, value = False)
+        mc.checkBox(self.option_group_YES, edit = True, value = False)
 
     def applyMaterial(self,lamposts):
 
@@ -189,12 +191,14 @@ class Lamp_Posts_Window(BaseWindow):
         
         return self.spotlight_button
 
-    def test_omni(self, omni_selected):
-        print(omni_selected)
-    def test_spot(self, spot_selected):
-        print(spot_selected)
+    def import_omnilight(self, omni_selected):
+        mc.file(self.LIGHT_PATH + omni_selected + '.mb', i = True, type = 'mayaBinary', ignoreVersion = True, mergeNamespacesOnClash = False, options = 'v=0')
+        mc.rename(omni_selected, omni_selected + '_001')
 
-
+    def import_spotlight(self, spot_selected):
+        mc.file(self.LIGHT_PATH + spot_selected + '.mb', i = True, type = 'mayaBinary', ignoreVersion = True, mergeNamespacesOnClash = False, options = 'v=0')
+        mc.rename(spot_selected, spot_selected + '_001')
+        
     def toggleOmniLightsMenuEnable(self, index):
         if mc.optionMenu(self.omnilights_optionMenu, query = True, enable = False):
             mc.optionMenu(self.omnilights_optionMenu, edit = True, enable = False)
@@ -207,7 +211,34 @@ class Lamp_Posts_Window(BaseWindow):
         else:
             mc.optionMenu(self.spotlights_optionMenu, edit = True, enable = True)
 
+    def clear_panel(self, index):
 
+        if mc.checkBox(self.hie_version_checkBox, query = True, enable = True):
+            mc.checkBox(self.hie_version_checkBox, edit = True, enable = True, value = False)
+
+        if mc.checkBox(self.checkOmnilight, query = True, enable = True):
+            mc.checkBox(self.checkOmnilight, edit = True, enable = True, value = False)
+
+        if mc.checkBox(self.checkSpotlight, query = True, enable = True):
+            mc.checkBox(self.checkSpotlight, edit = True, enable = True, value = False)
+
+        if mc.optionMenu(self.omnilights_optionMenu, query = True, enable = True):
+            mc.optionMenu(self.omnilights_optionMenu, edit = True, enable = False)
+
+        if mc.optionMenu(self.spotlights_optionMenu, query = True, enable = True):
+            mc.optionMenu(self.spotlights_optionMenu, edit = True, enable = False)
+
+        if mc.checkBox(self.option_texture_NO, query = True, enable = True):
+            mc.checkBox(self.option_texture_NO, edit = True, enable = True, value = False)
+
+        if mc.checkBox(self.option_texture_YES, query = True, enable = True):
+            mc.checkBox(self.option_texture_YES, edit = True, enable = True, value = False)
+
+        if mc.checkBox(self.option_group_NO, query = True, enable = True):
+            mc.checkBox(self.option_group_NO, edit = True, enable = True, value = False)
+
+        if mc.checkBox(self.option_group_YES, query = True, enable = True):
+            mc.checkBox(self.option_group_YES, edit = True, enable = True, value = False)
 
     def CreateCustomUI (self):
         """ """
@@ -276,28 +307,28 @@ class Lamp_Posts_Window(BaseWindow):
         
         mc.rowLayout('outliner_structure', numberOfColumns = 3, parent = 'import_preferences', w = self.COLUMN_WIDTH//3, h = 15)
         mc.text( label='Create Group: ', parent = 'outliner_structure', al = 'left', w = self.COLUMN_WIDTH//3 - 1 )
-        self.option_group = mc.checkBox(label = 'Yes', parent = 'outliner_structure', w = self.COLUMN_WIDTH//3 - 1, changeCommand = self.createGroup)
-        mc.checkBox(label = 'No', parent = 'outliner_structure', w = self.COLUMN_WIDTH//3 - 1)
+        self.option_group_YES = mc.checkBox(label = 'Yes', parent = 'outliner_structure', w = self.COLUMN_WIDTH//3 - 1, changeCommand = self.createGroup)
+        self.option_group_NO = mc.checkBox(label = 'No', parent = 'outliner_structure', w = self.COLUMN_WIDTH//3 - 1)
 
         mc.rowLayout('texture_option', numberOfColumns = 3, parent = 'import_preferences', w = self.COLUMN_WIDTH//3, h = 15)
         mc.text( label='Texture: ', parent = 'texture_option', al = 'left', w = self.COLUMN_WIDTH//3 - 1 )
-        mc.checkBox(label = 'Yes', parent = 'texture_option', w = self.COLUMN_WIDTH//3 - 1, onCommand = self.applyMaterial)
-        mc.checkBox(label = 'No', parent = 'texture_option', w = self.COLUMN_WIDTH//3 - 1)
+        self.option_texture_YES = mc.checkBox(label = 'Yes', parent = 'texture_option', w = self.COLUMN_WIDTH//3 - 1, onCommand = self.applyMaterial)
+        self.option_texture_NO = mc.checkBox(label = 'No', parent = 'texture_option', w = self.COLUMN_WIDTH//3 - 1)
 
         mc.rowLayout('import_omnilight_light', numberOfColumns = 3, parent = 'import_preferences', w = self.COLUMN_WIDTH//3, h = 15)
         self.checkOmnilight = mc.checkBox(label = 'Omnilight              ', parent = 'import_omnilight_light', onc = self.toggleOmniLightsMenuEnable, ofc=self.toggleOmniLightsMenuEnable)
-        self.omnilights_optionMenu = mc.optionMenu(w = self.COLUMN_WIDTH//2 + 55 , parent = 'import_omnilight_light', enable = False, changeCommand = self.test_omni)
+        self.omnilights_optionMenu = mc.optionMenu(w = self.COLUMN_WIDTH//2 + 55 , parent = 'import_omnilight_light', enable = False, changeCommand = self.import_omnilight)
         self.omnilights_buttons_menu()
 
         mc.rowLayout('import_spotlight_light', numberOfColumns = 3, parent = 'import_preferences', w = self.COLUMN_WIDTH//3, h = 15)
         self.checkSpotlight = mc.checkBox(label = 'Spotlight               ', parent = 'import_spotlight_light', onc = self.toggleSpotLightsMenuEnable, ofc=self.toggleSpotLightsMenuEnable)
-        self.spotlights_optionMenu = mc.optionMenu(w = self.COLUMN_WIDTH//2 + 55, parent = 'import_spotlight_light', enable = False, changeCommand = self.test_spot)
+        self.spotlights_optionMenu = mc.optionMenu(w = self.COLUMN_WIDTH//2 + 55, parent = 'import_spotlight_light', enable = False, changeCommand = self.import_spotlight)
         self.spotlights_buttons_menu()
 
 
         mc.text( label='', parent = 'import_preferences', al = 'left', h = 5 )
         mc.rowLayout('final_buttons', numberOfColumns = 2, parent = 'column_right', h = 52)
-        button_clear = mc.button('Clear', label = 'Clear', parent = 'final_buttons', w = self.COLUMN_WIDTH//2 - 1, height = 30)
+        button_clear = mc.button('Clear', label = 'Clear', parent = 'final_buttons', w = self.COLUMN_WIDTH//2 - 1, height = 30, command = self.clear_panel)
         button_import = mc.button('Import', label = 'Import', parent = 'final_buttons', w = self.COLUMN_WIDTH//2 - 1, height = 30, command = self.import_lampost)
 
 
